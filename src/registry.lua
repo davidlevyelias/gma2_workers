@@ -22,6 +22,9 @@
 ---@field startTime number
 ---@field mode WorkerMode
 ---@field alias string?
+---@field awaiting boolean
+---@field finalResponse WorkerResponse?
+---@field completed boolean?
 
 ---@type table<string, WorkerJob>
 local activeJobs = {}
@@ -33,9 +36,8 @@ local Registry = {}
 ---@param tasks WorkerTask[]
 ---@param mode WorkerMode
 ---@param onComplete fun(response: WorkerResponse)?
----@return string jobId
----@return WorkerJob job
-function Registry.createJob(tasks, mode, onComplete)
+---@param awaiting boolean
+function Registry.createJob(tasks, mode, onComplete, awaiting)
     local jobId = Utils.generateJobId()
     local job = {
         tasks = tasks,
@@ -44,7 +46,10 @@ function Registry.createJob(tasks, mode, onComplete)
         totalWorkers = #tasks,
         startTime = os.clock(),
         mode = mode,
-        alias = nil
+        alias = nil,
+        awaiting = awaiting or false,
+        finalResponse = nil,
+        completed = false
     }
 
     activeJobs[jobId] = job

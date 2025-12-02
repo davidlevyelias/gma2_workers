@@ -10,8 +10,9 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
 - **Linear Scaling:** Proven performance gains. A task that takes **155s** with 1 worker takes **~8s** with 19 workers.
 - **Zero Global Pollution:** Smart cleanup mechanisms ensure your `_G` namespace stays clean.
 - **Two Execution Modes:**
-  - `timer` (Default): High-performance, low-overhead using native timer interrupts.
-  - `cmd`: Robust, isolated execution using the command line pipeline.
+    - `timer` (Default): High-performance, low-overhead using native timer interrupts.
+    - `cmd`: Robust, isolated execution using the command line pipeline.
+- **Async or Await:** Call `RunAsync` with an `onComplete` callback, or `RunSync` to block until all workers finish and immediately receive the response.
 - **Lua 5.3 Compatible:** Ready for standard Lua environments.
 
 🧱 **Project Structure**
@@ -24,7 +25,7 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
 
 📦 **Installation**
 
-1. Download the entire `gma2-workers` folder (keep the name so `require` can resolve nested modules).
+1. Download the entire `gma2-workers` folder (keep the name so `require` can resolve nested modules) or download a pre-packaged release file.
 2. Place the folder in your GrandMA2 plugin directory:
 
    - **PC:** `C:\ProgramData\MA Lighting Technologies\grandma\gma2_V_3.x.x\plugins\`
@@ -51,7 +52,7 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
     end
     ```
 
-3.  **Dispatch the Job**
+3.  **Run the Job**
 
     ```LUA
     local function Start()
@@ -67,7 +68,7 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
         end
 
         -- Run it
-        Workers.Dispatch({
+        gma2workers.RunAsync({
             tasks = myTasks,
             mode = "timer", -- Optional: "timer" (default) or "cmd"
             onComplete = function(response)
@@ -79,6 +80,13 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
                 end
             end
         })
+
+        -- Or block and get the response immediately
+        local response = gma2workers.RunSync({
+            tasks = myTasks,
+            mode = "timer"
+        })
+        gma.echo("Await mode duration: " .. response.duration .. "s")
     end
     return Start
     ```
@@ -101,20 +109,28 @@ _Note: Performance plateaus after ~20 workers due to internal engine overhead._
 
 📚 **API Reference**
 
-`Workers.Dispatch(config)`
-The main entry point for the library.
+### `gma2workers.RunAsync(config)`
+Fire-and-forget execution that completes via callback.
 
 #### Parameters: `config` (Table)
 
 | Key          | Type     | Description                                                           |
 | ------------ | -------- | --------------------------------------------------------------------- |
 | `tasks`      | Table    | An array of task objects: `{ {func=ref, args={...}}, ... }`           |
-| `onComplete` | Function | Callback executed when all workers finish. Receives `response` table. |
+| `onComplete` | Function | **Required**. Called once all workers finish. Receives `response`.        |
 | `mode`       | String   | `"timer"` (Default) or `"cmd"`.                                       |
 
-**Response Object**
+### `gma2workers.RunSync(config)`
+Blocking execution that returns the response table directly.
 
-The `onComplete` callback receives a single table containing:
+| Key          | Type   | Description                                                 |
+| ------------ | ------ | ----------------------------------------------------------- |
+| `tasks`      | Table  | Same task array as above.                                   |
+| `mode`       | String | Optional execution mode (`"timer"` default, or `"cmd"`). | 
+
+`RunSync` returns the same response object that `onComplete` would receive:
+
+> **Note:** `gma2workers.Dispatch` remains available for backward compatibility and is now an alias for `RunSync`.
 
 ```LUA
 {

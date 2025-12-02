@@ -27,21 +27,10 @@ local function dispatchCmdWorkers(jobId, workerCount)
     end
 end
 
----@param config {tasks: WorkerTask[], onComplete: fun(response: WorkerResponse)?, mode: WorkerMode?}
-function Dispatcher.dispatch(config)
-    local tasks = config.tasks or {}
-    local mode = config.mode or "timer"
-    local onComplete = config.onComplete
-    local workerCount = #tasks
-
-    if workerCount == 0 then
-        return
-    end
-
-    local jobId = Registry.createJob(tasks, mode, onComplete)
-
-    gma.echo(string.format("GMA2 Workers: Spawning %d workers (Mode: %s)", workerCount, mode))
-
+---@param jobId string
+---@param workerCount integer
+---@param mode WorkerMode
+local function startWorkers(jobId, workerCount, mode)
     if mode == "timer" then
         dispatchTimerWorkers(jobId, workerCount)
     elseif mode == "cmd" then
@@ -49,8 +38,56 @@ function Dispatcher.dispatch(config)
     else
         gma.echo(string.format("GMA2 Workers: Unknown mode '%s'", tostring(mode)))
     end
+end
+
+---@param config {tasks: WorkerTask[], onComplete?: fun(response: WorkerResponse), mode?: WorkerMode}
+---@param awaiting boolean
+---@return WorkerResponse|nil
+local function dispatchInternal(config, awaiting)
+    local tasks = config.tasks or {}
+    local mode = config.mode or "timer"
+    local onComplete = awaiting and nil or config.onComplete
+    local workerCount = #tasks
+
+    if workerCount == 0 then
+        return nil
+    end
+
+    if (not awaiting) and type(onComplete) ~= "function" then
+        gma.echo("GMA2 Workers: RunAsync requires an onComplete callback")
+        return nil
+    end
+
+    local jobId, job = Registry.createJob(tasks, mode, onComplete, awaiting)
+
+    gma.echo(string.format("GMA2 Workers: Spawning %d workers (Mode: %s)", workerCount, mode))
+
+    startWorkers(jobId, workerCount, mode)
 
     gma.sleep(0.01)
+
+    if awaiting then
+        while not job.completed do
+            gma.sleep(0.01)
+        end
+
+        local response = job.finalResponse
+        Registry.remove(jobId)
+        return response
+    end
+
+    return nil
+end
+
+---@param config {tasks: WorkerTask[], onComplete: fun(response: WorkerResponse), mode?: WorkerMode}
+function Dispatcher.runAsync(config)
+    dispatchInternal(config, false)
+end
+
+---@param config {tasks: WorkerTask[], mode?: WorkerMode}
+---@return WorkerResponse|nil
+function Dispatcher.runSync(config)
+    return dispatchInternal(config, true)
 end
 
 return Dispatcher

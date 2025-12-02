@@ -60,8 +60,8 @@ local function Start()
     gma.echo(string.format("Load per Worker: ~%d ops | Mode: %s", opsPerWorker, modeInput))
     gma.echo("========================================")
 
-    -- 6. DISPATCH
-    gma2Workers.Dispatch({
+    -- 6. RUN ASYNC
+    gma2Workers.RunAsync({
         tasks = myTasks,
         mode = modeInput,
         onComplete = function(res)

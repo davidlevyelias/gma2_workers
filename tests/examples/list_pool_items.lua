@@ -56,12 +56,12 @@ local function benchmarkWorkers(poolHandle, poolSize, baselineDuration)
     end
 
     gma.echo(string.format(
-        "[Pool Benchmark] Dispatching %d workers (%d-slot chunks) in timer mode...",
+        "[Pool Benchmark] Spawning %d workers (%d-slot chunks) in timer mode...",
         #tasks,
         chunkSize
     ))
 
-    Workers.Dispatch({
+    Workers.RunAsync({
         tasks = tasks,
         mode = "timer",
         onComplete = function(response)

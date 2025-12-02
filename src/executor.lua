@@ -20,21 +20,26 @@ local function onWorkerFinished(jobId, workerId, success, payload)
 
     if finishedCount >= job.totalWorkers then
         local duration = os.clock() - job.startTime
-
-        if job.onComplete then
-            pcall(job.onComplete, {
-                result = job.results,
-                duration = duration,
-                workerCount = job.totalWorkers,
-                jobId = jobId
-            })
-        end
+        local response = {
+            result = job.results,
+            duration = duration,
+            workerCount = job.totalWorkers,
+            jobId = jobId
+        }
 
         if job.mode == "cmd" and job.alias then
             _G[job.alias] = nil
         end
 
-        Registry.remove(jobId)
+        if job.awaiting then
+            job.finalResponse = response
+            job.completed = true
+        else
+            if job.onComplete then
+                pcall(job.onComplete, response)
+            end
+            Registry.remove(jobId)
+        end
     end
 end
 
