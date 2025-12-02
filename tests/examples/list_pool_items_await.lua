@@ -2,7 +2,7 @@ local Workers = require("gma2-workers")
 
 local ROOT_HANDLE = 1
 local POOL_INDEX = 14
-local WORKER_COUNT = 12
+local WORKER_COUNT = 12 -- Desired concurrent workers
 
 local function iterateRange(poolHandle, startIdx, endIdx)
     local found = 0
@@ -47,7 +47,8 @@ local function Start()
     local t0 = os.clock()
     local response = Workers.RunSync({
         tasks = tasks,
-        mode = "timer"
+        mode = "timer",
+        workers = WORKER_COUNT
     })
     local totalDuration = os.clock() - t0
 

@@ -13,6 +13,7 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
     - `timer` (Default): High-performance, low-overhead using native timer interrupts.
     - `cmd`: Robust, isolated execution using the command line pipeline.
 - **Async or Await:** Call `RunAsync` with an `onComplete` callback, or `RunSync` to block until all workers finish and immediately receive the response.
+- **Configurable Worker Pool:** Use the optional `workers` parameter to cap concurrency independently from the number of tasks.
 - **Lua 5.3 Compatible:** Ready for standard Lua environments.
 
 🧱 **Project Structure**
@@ -71,11 +72,12 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
         gma2workers.RunAsync({
             tasks = myTasks,
             mode = "timer", -- Optional: "timer" (default) or "cmd"
+            workers = 6,     -- Optional: limit concurrent workers (defaults to #tasks)
             onComplete = function(response)
                 gma.echo("Job done in " .. response.duration .. "s")
 
                 -- Access results
-                for workerId, output in pairs(response.result) do
+                for taskIndex, output in pairs(response.result) do
                     gma.echo(output.data)
                 end
             end
@@ -84,7 +86,8 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
         -- Or block and get the response immediately
         local response = gma2workers.RunSync({
             tasks = myTasks,
-            mode = "timer"
+            mode = "timer",
+            workers = 4
         })
         gma.echo("Await mode duration: " .. response.duration .. "s")
     end
@@ -117,8 +120,9 @@ Fire-and-forget execution that completes via callback.
 | Key          | Type     | Description                                                           |
 | ------------ | -------- | --------------------------------------------------------------------- |
 | `tasks`      | Table    | An array of task objects: `{ {func=ref, args={...}}, ... }`           |
-| `onComplete` | Function | **Required**. Called once all workers finish. Receives `response`.        |
+| `onComplete` | Function | **Required**. Called once all workers finish. Receives `response`.    |
 | `mode`       | String   | `"timer"` (Default) or `"cmd"`.                                       |
+| `workers`    | Integer  | Optional cap on concurrent workers (defaults to `#tasks`).            |
 
 ### `gma2workers.RunSync(config)`
 Blocking execution that returns the response table directly.
@@ -126,7 +130,8 @@ Blocking execution that returns the response table directly.
 | Key          | Type   | Description                                                 |
 | ------------ | ------ | ----------------------------------------------------------- |
 | `tasks`      | Table  | Same task array as above.                                   |
-| `mode`       | String | Optional execution mode (`"timer"` default, or `"cmd"`). | 
+| `mode`       | String | Optional execution mode (`"timer"` default, or `"cmd"`). |
+| `workers`    | Integer | Optional concurrency cap (defaults to `#tasks`).           |
 
 `RunSync` returns the same response object that `onComplete` would receive:
 
@@ -135,7 +140,7 @@ Blocking execution that returns the response table directly.
 ```LUA
 {
     duration = 8.123, -- Total time in seconds
-    workerCount = 19, -- Number of workers used
+    workerCount = 19, -- Number of worker threads actually spawned
     jobId = "Job_...", -- Internal ID
     result = { -- Table of returns from workers
         [1] = { success = true, data = "..." },

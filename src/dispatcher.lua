@@ -9,7 +9,7 @@ local Dispatcher = {}
 local function dispatchTimerWorkers(jobId, workerCount)
     for workerId = 1, workerCount do
         local wrapper = function()
-            Executor.run(jobId, workerId)
+            Executor.run(jobId)
         end
         gma.timer(wrapper, 0, 1)
     end
@@ -19,11 +19,13 @@ end
 ---@param workerCount integer
 local function dispatchCmdWorkers(jobId, workerCount)
     local aliasName = Utils.generateAliasName("Exec_")
-    _G[aliasName] = Executor.run
+    _G[aliasName] = function()
+        Executor.run(jobId)
+    end
     Registry.setAlias(jobId, aliasName)
 
     for workerId = 1, workerCount do
-        gma.cmd(string.format('LUA "%s(\'%s\', %d)"', aliasName, jobId, workerId))
+        gma.cmd(string.format('LUA "%s()"', aliasName))
     end
 end
 
@@ -40,17 +42,27 @@ local function startWorkers(jobId, workerCount, mode)
     end
 end
 
----@param config {tasks: WorkerTask[], onComplete?: fun(response: WorkerResponse), mode?: WorkerMode}
+---@param config {tasks: WorkerTask[], onComplete?: fun(response: WorkerResponse), mode?: WorkerMode, workers?: integer}
 ---@param awaiting boolean
 ---@return WorkerResponse|nil
 local function dispatchInternal(config, awaiting)
     local tasks = config.tasks or {}
     local mode = config.mode or "timer"
     local onComplete = awaiting and nil or config.onComplete
-    local workerCount = #tasks
+    local taskCount = #tasks
 
-    if workerCount == 0 then
+    if taskCount == 0 then
         return nil
+    end
+
+    local workerThreads = taskCount
+    local requestedWorkers = tonumber(config.workers)
+    if requestedWorkers and requestedWorkers > 0 then
+        workerThreads = math.min(taskCount, math.floor(requestedWorkers))
+    end
+
+    if workerThreads < 1 then
+        workerThreads = 1
     end
 
     if (not awaiting) and type(onComplete) ~= "function" then
@@ -58,11 +70,11 @@ local function dispatchInternal(config, awaiting)
         return nil
     end
 
-    local jobId, job = Registry.createJob(tasks, mode, onComplete, awaiting)
+    local jobId, job = Registry.createJob(tasks, mode, onComplete, awaiting, workerThreads)
 
-    gma.echo(string.format("GMA2 Workers: Spawning %d workers (Mode: %s)", workerCount, mode))
+    gma.echo(string.format("GMA2 Workers: Spawning %d workers for %d tasks (Mode: %s)", workerThreads, taskCount, mode))
 
-    startWorkers(jobId, workerCount, mode)
+    startWorkers(jobId, workerThreads, mode)
 
     gma.sleep(0.01)
 
@@ -79,12 +91,12 @@ local function dispatchInternal(config, awaiting)
     return nil
 end
 
----@param config {tasks: WorkerTask[], onComplete: fun(response: WorkerResponse), mode?: WorkerMode}
+---@param config {tasks: WorkerTask[], onComplete: fun(response: WorkerResponse), mode?: WorkerMode, workers?: integer}
 function Dispatcher.runAsync(config)
     dispatchInternal(config, false)
 end
 
----@param config {tasks: WorkerTask[], mode?: WorkerMode}
+---@param config {tasks: WorkerTask[], mode?: WorkerMode, workers?: integer}
 ---@return WorkerResponse|nil
 function Dispatcher.runSync(config)
     return dispatchInternal(config, true)

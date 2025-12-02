@@ -64,6 +64,7 @@ local function Start()
     gma2Workers.RunAsync({
         tasks = myTasks,
         mode = modeInput,
+        workers = workerCount,
         onComplete = function(res)
             gma.echo("----------------------------------------")
             gma.echo(string.format("FINISHED in %.4fs", res.duration))

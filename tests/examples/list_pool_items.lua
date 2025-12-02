@@ -2,7 +2,7 @@ local Workers = require("gma2-workers")
 
 local ROOT_HANDLE = 1 -- Constant entry point used by gma.show.getobj.* helpers
 local POOL_INDEX = 14 -- Example pool (change to match the pool you want to benchmark)
-local WORKER_COUNT = 20 -- Adjust to taste
+local WORKER_COUNT = 20 -- Desired concurrent workers (<= number of tasks)
 
 
 local function iterateRangeDirect(poolHandle, startIdx, endIdx)
@@ -64,6 +64,7 @@ local function benchmarkWorkers(poolHandle, poolSize, baselineDuration)
     Workers.RunAsync({
         tasks = tasks,
         mode = "timer",
+        workers = WORKER_COUNT,
         onComplete = function(response)
             local totalFound = 0
             for _, result in pairs(response.result) do
