@@ -1,6 +1,6 @@
 {
     "entry": "./init.lua",
-    "output": "./dist/gma2-workers.lua",
+    "output": "./dist/gma2workers.lua",
     "modules": {
         "external": {
             "enabled": false

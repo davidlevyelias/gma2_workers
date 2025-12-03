@@ -1,0 +1,11 @@
+{
+    "Lua.runtime.version": "Lua 5.3",
+    "Lua.diagnostics.globals": [
+        "gma"
+    ],
+    "Lua.workspace.ignoreDir": [
+        ".vscode",
+        "dist/"
+    ],
+    "Lua.diagnostics.ignoredFiles": "Disable"
+}
