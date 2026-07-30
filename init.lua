@@ -1,5 +1,19 @@
 local Dispatcher = require("src.dispatcher")
+
+---@class GMA2WorkersInfo
+---@field name string
+---@field version string
+---@field author string
+
+---@class GMA2WorkersModule
+---@field info GMA2WorkersInfo
 local gma2Workers = {}
+
+gma2Workers.info = {
+    name = "gma2_workers",
+    version = "1.1.2",
+    author = "David Levy Elias",
+}
 
 local function ensureConfig(config, caller)
     if type(config) ~= "table" then

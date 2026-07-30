@@ -1,4 +1,4 @@
-local Workers = require("gma2-workers")
+local Workers = require("gma2_workers")
 
 local ROOT_HANDLE = 1
 local POOL_INDEX = 14

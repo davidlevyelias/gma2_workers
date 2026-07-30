@@ -18,7 +18,7 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
 
 🧱 **Project Structure**
 
-- `init.lua`: Public entry-point returned by `require("gma2-workers")`.
+- `init.lua`: Public entry-point returned by `require("gma2_workers")`.
 - `src/utils.lua`: Deterministic helpers (IDs, alias names, counters).
 - `src/registry.lua`: In-memory tracking of active jobs/workers (also hosts the shared annotations).
 - `src/executor.lua`: Runs worker functions and resolves callbacks.
@@ -26,18 +26,18 @@ GMA2 Workers is a robust Orchestrator Library that brings true parallel processi
 
 📦 **Installation**
 
-1. Download the entire `gma2-workers` folder (keep the name so `require` can resolve nested modules) or download a pre-packaged release file.
+1. Download the entire `gma2_workers` folder (keep the name so `require` can resolve nested modules) or download a pre-packaged release file.
 2. Place the folder in your GrandMA2 plugin directory:
 
    - **PC:** `C:\ProgramData\MA Lighting Technologies\grandma\gma2_V_3.x.x\plugins\`
    - **Console:** `/gma2/plugins/`
 
-3. Import it into your plugin script using `local gma2workers = require("gma2-workers")` (or rename the folder and update the require path accordingly).
+3. Import it into your plugin script using `local gma2workers = require("gma2_workers")` (or rename the folder and update the require path accordingly).
 
 ⚡ **Quick Start**
 
 1.  **Require the Library**
-    `local gma2workers = require("gma2-workers")`
+    `local gma2workers = require("gma2_workers")`
 
 2.  **Define a "Pure" Function**
     **Crucial:** The function you want to run in parallel must be "Pure". It cannot access local variables defined outside of itself (Upvalues). It must rely only on the arguments passed to it or global MA functions.

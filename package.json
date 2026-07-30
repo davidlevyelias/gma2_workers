@@ -1,15 +1,15 @@
 {
-  "name": "gma2-workers",
-  "version": "1.1.1",
+  "name": "gma2_workers",
+  "version": "1.1.2",
   "description": "High-Performance Parallel Processing Library for GrandMA2 Lua Engine",
   "main": "init.lua",
   "scripts": {
-    "pack": "node scripts/pack.js"
+    "pack": "npx luapack bundle --config luapack.config.json --verbose"
   },
   "keywords": [],
   "author": "David Levy Elias",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "@davidlevyelias/luapack": "^1.1.1"
+    "@davidlevyelias/luapack": "^2.1.2"
   }
 }

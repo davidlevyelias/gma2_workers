@@ -1,4 +1,4 @@
-local Workers = require("gma2-workers")
+local Workers = require("gma2_workers")
 
 local TASK_COUNT = 12
 local WORKER_LIMIT = 3

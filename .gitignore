@@ -1,2 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/settings.json
+
+# Node
 node_modules/
+
+# Build and temporary artifacts
 dist/
+temp/
+*.out
+*.log
+*.tmp
+
+lib/
+ma-pm/
+
+# Tests are temporarily excluded from release repositories
+tests/

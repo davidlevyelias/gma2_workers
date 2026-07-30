@@ -1,6 +1,6 @@
 -- To be tested in GMA2 environment
 
-local gma2Workers = require("gma2-workers")
+local gma2Workers = require("gma2_workers")
 
 -- The Work Unit
 -- Runs exactly 'opsCount' math iterations

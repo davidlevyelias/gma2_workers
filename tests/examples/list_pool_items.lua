@@ -1,4 +1,4 @@
-local Workers = require("gma2-workers")
+local Workers = require("gma2_workers")
 
 local ROOT_HANDLE = 1 -- Constant entry point used by gma.show.getobj.* helpers
 local POOL_INDEX = 14 -- Example pool (change to match the pool you want to benchmark)

@@ -1,15 +1,13 @@
 {
+    "$schema": "https://raw.githubusercontent.com/davidlevyelias/LuaPack/v2.1.0/config.schema.json",
+    "schemaVersion": 2,
     "entry": "./init.lua",
-    "output": "./dist/gma2workers.lua",
-    "modules": {
-        "external": {
-            "enabled": false
+    "output": "dist/gma2_workers.lua",
+    "luaVersion": "5.3",
+    "packages": {
+        "default": {
+            "root": "./"
         }
     },
-    "obfuscation": {
-        "tool": "internal",
-        "config": {
-            "minify": true
-        }
-    }
+    "missing": "error"
 }
