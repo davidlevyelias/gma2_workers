@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "name": "gma2_workers",
+  "platform": "ma2",
+  "exports": [
+    "init.lua",
+    "src",
+    "package.json",
+    "ma-package.json",
+    "ma-lock.json",
+    "luapack.config.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {}
+}
